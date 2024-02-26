@@ -6,29 +6,48 @@ const getPackages = async (req, res) =>{
 }
 
 const postPackage = async (req, res) =>{
-    // let destinations = [];
-    // destinations = req.body.destinations.split(",")
-
-    const package = new Package({
-        title: req.body.title,
-        price: req.body.price,
-        destinations: [],
-        time: req.body.time,
-        thumbnail: ""
-    })
-    if(req.file){
-        package.thumbnail = req.file.path;
+    try {
+        const package = new Package({
+            title: req.body.title,
+            price: req.body.price,
+            destinations: [],
+            time: req.body.time,
+            thumbnail: ""
+        })
+        if(req.file){
+            package.thumbnail = req.file.path;
+        }
+        await package.save();
+        res.status(201).json({package});
+    } catch (error) {
+        res.status(500).json({"status": "Unsuccessful", "message": error})
     }
-    await package.save();
-    res.status(201).json({package});
 }
 
 const updatePackage = async (req, res)=>{
-    //TODO: Add update Package with update thumbnail of put request with req id
+    try {
+        const {id: packageID } = req.params;
+        if(!packageID){
+            res.status(404).json({"msg": "Package ID not found."});
+        }
+        const result = await Package.findByIdAndUpdate(packageID, req.body);
+        res.status(200).json({result});
+    } catch (error) {
+        res.status(500).json({"status": "Unsuccessful", "message": error})
+    }
 }
 
 const deletePackage = async (req, res)=>{
-    //TODO: Delete package with its id
+    try {
+        const {id: packageID} = req.params;
+        if(!packageID){
+            res.status(404).json({"msg": "Package ID not found."});
+        }
+        const result = await Package.findByIdAndDelete({_id: packageID})
+        res.status(200).json({result});
+    } catch (error) {
+        res.status(500).json({"status": "Unsuccessful", "message": error})
+    }
 }
 
 module.exports =  { 

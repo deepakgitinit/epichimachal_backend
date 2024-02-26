@@ -14,7 +14,7 @@ const port = process.env.APP_PORT;
 //Middlewares
 app.use('/public', express.static('public'))
 app.use(express.json());
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({extended: true}));
 
 //Routers
 app.use("/api/v1/packages", packages);
