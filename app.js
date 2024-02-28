@@ -3,7 +3,8 @@ const app = express();
 
 const connectDB = require("./db/connect");
 const packages = require('./routes/packages.js');
-const destinations = require("./routes/destinations.js")
+const destinations = require("./routes/destinations.js");
+const users = require("./routes/users.js");
 
 //Environment Variables
 const dotenv = require('dotenv');
@@ -19,6 +20,7 @@ app.use(express.urlencoded({extended: true}));
 //Routers
 app.use("/api/v1/packages", packages);
 app.use("/api/v1/destinations", destinations)
+app.use("/api/v1/users", users)
 
 const start = async () =>{
     try {

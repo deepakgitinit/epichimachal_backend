@@ -3,7 +3,7 @@ const fs = require('fs');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        let folderName = req.body.title;
+        let folderName = req.body.title  || req.body.username ;
         folderName = folderName.split(" ").join("-");
         const uploadDirectory = `public/data/uploads/${folderName}`
 
