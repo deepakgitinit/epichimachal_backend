@@ -1,8 +1,9 @@
 const Users = require("../models/users");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const sendingMail = require("../middlewares/nodemailer")
-
+const verificationMail = require("../middlewares/verificationmail");
+const forgotusername = require("../middlewares/forgotusername");
+const forgotpassword = require("../middlewares/forgotpassword");
 
 const createUser = async (req, res) => {
     try {
@@ -20,6 +21,7 @@ const createUser = async (req, res) => {
         const encodedPassword = await bcrypt.hash(req.body.password, genSalt);
 
         const User = new Users({
+            name: req.body.name,
             username: req.body.username,
             password: encodedPassword,
             email: req.body.email,
@@ -34,17 +36,15 @@ const createUser = async (req, res) => {
         }
 
         const createdUser = await User.save();
-
         const id = createdUser._id.toString();
         const username = createdUser.username;
         const email = createdUser.email;
-        const result = verificationToken(id, username, email);
+        const result = verificationMail(id, username, email);
 
         if(result){
-            res.status(201).json({status: "Successful", message: "User successfully created."});
+            res.status(201).json({status: "Successful", message: "User successfully created. Check for verification mail"});
         }else{
-            res.status(201).json({status: "Unsuccessful", message: "User not created."});
-
+            res.status(500).json({status: "Unsuccessful", message: "User not created."});
         }
 
     } catch (error) {
@@ -54,66 +54,146 @@ const createUser = async (req, res) => {
 
 
 const loginUser = async (req, res) =>{
-    if(!req.body.username || !req.body.password){
-        res.status(400).json({status: "Unsuccessful", message: "Username or Password cannot be empty."})
-        return;
-    }
-    const user = await Users.findOne({username: req.body.username})
-    if(!user){
-        res.status(401).json({status: "Unsuccessful", message: "Username is incorrect."});
-        return;
-    }
-    let token;
-    if(await bcrypt.compare(req.body.password, user.password)){
-        token = jwt.sign({userID: user.id, username: user.username, role: user.role}, process.env.JWT_SECRET, {
-            expiresIn: "30d",
-        });
-    }
-    res.status(200).json({status: "Successful", message: token})
-}
-
-
-const verificationToken = async (id, username, email) =>{
-    const token = jwt.sign({id: id, username: username}, process.env.JWT_SECRET, {
-        expiresIn: "30m"
-    });
-    if(token){
-        try {
-            await sendingMail({
-                from: "no-reply@travelmorehimachal.com",
-                to: `${email}`,
-                subject: "Account Verification Link",
-                text: `Hello, ${username} Please verify your email by
-                clicking this link, link is activated for 10 minutes only :
-                http://localhost:5000/api/v1/users/${token}`,
-            })
-            return true;
-
-        } catch(error) {
-            console.log({status: "Unsuccessful", message: error});
+    try {
+        if(!req.body.username || !req.body.password){
+            res.status(400).json({status: "Unsuccessful", message: "Credentials cannot be empty."})
+            return;
         }
-    }else{
-        return false;
+        const user = await Users.findOne({username: req.body.username})
+        if(!user){
+            res.status(401).json({status: "Unsuccessful", message: "Username is incorrect."});
+            return;
+        }
+        if(!user.isVerified){
+            res.status(401).json({status: "Unsuccessful", message: "Account is not verified."});
+            return;
+        }
+        let token;
+        if(await bcrypt.compare(req.body.password, user.password)){
+            token = jwt.sign({userID: user.id, username: user.username, role: user.role}, process.env.JWT_SECRET, {
+                expiresIn: "30d",
+            });
+        }
+        res.status(200).json({status: "Successful", message: token})
+        
+    } catch (error) {
+        res.status(500).json({status: "Unsuccessful", message: error});
     }
 }
-
 
 const verification = async(req, res) =>{
-    const {verification} = req.params;
-    const data = jwt.verify(verification, process.env.JWT_SECRET);
+    try {
+        const {verification} = req.params;
+        const data = jwt.verify(verification, process.env.JWT_SECRET);
 
-    const {username} = await Users.findByIdAndUpdate(data.id, {isVerified: true});
+        const user = await Users.findById(data.id);
+        if(!user){
+            res.status(404).json({status: "Unsuccessful", message: "User not found."});
+            return;
+        }
+        if(user.isVerified){
+            res.status(404).json({status: "Unsuccessful", message: "User is Already Verified."});
+            return;
+        }
+        user.isVerified = true;
+        user.save();
+    
+        res.status(200).json({status: "Successful", message: "Account Verified."})
 
-    if(!username){
-        res.status(404).json({status: "Unsuccessful", message: "User not found."});
-        return;
+    } catch (error) {
+        res.status(500).json({status: "Unsuccessful", message: error});
     }
-    if(username != data.username){
-        res.status(200).json({status: "Unsuccessful", message: "Token is not Valid."})
-        return;
-    }
-
-    res.status(200).json({status: "Successful", message: "Account Verified."})
 }
 
-module.exports = {createUser, loginUser, verification};
+const resendVerification = async (req, res) =>{
+    try {
+        const username = req.body.username;
+        const user = await Users.findOne({username: username});
+        if(!user){
+            res.status(404).json({status: "Unsuccessful", message: "Username not found."});
+            return;
+        }
+        const result = await verificationMail(user.id, user.username, user.email);
+    
+        if(result){
+            res.status(200).json({status: "Successful", message: "Check for verification mail"});
+        }else{
+            res.status(500).json({status: "Unsuccessful", message: "Internal error while sending verification mail."});
+        }
+
+    } catch (error) {
+        res.status(500).json({status: "Unsuccessful", message: error});
+    }
+}
+
+const forgotUsername = async (req, res) =>{
+    try {
+        const email = req.body.email;
+        const user = await Users.findOne({email: email});
+
+        if(!user){
+            res.status(404).json({status: "Unsuccessful", message: "Email not registered."});
+            return;
+        }
+        const result = await forgotusername(user.name, user.username, user.email);
+
+        if(result){
+            res.status(200).json({status: "Successful", message: "Check your mail for username"});
+        }else{
+            res.status(500).json({status: "Unsuccessful", message: "Internal error while sending mail."});
+        }
+
+    } catch (error) {
+        res.status(500).json({status: "Unsuccessful", message: error});
+    }
+    
+}
+
+const forgotPassword = async (req, res) =>{
+    try {
+        const username = req.body.username;
+        const user = await Users.findOne({username: username});
+
+        if(!user){
+            res.status(404).json({status: "Unsuccessful", message: "Email not registered."});
+            return;
+        }
+        const result = await forgotpassword(user.id, user.name, user.email);
+
+        if(result){
+            res.status(200).json({status: "Successful", message: "Check your mail for Password reset link."});
+        }else{
+            res.status(500).json({status: "Unsuccessful", message: "Internal error while sending mail."});
+        }
+        
+    } catch (error) {
+        res.status(500).json({status: "Unsuccessful", message: error});
+    }
+}
+
+const setPassword = async(req, res) =>{
+    try {
+        const {token} = req.params;
+        
+        const genSalt = await bcrypt.genSalt(12);
+        const encodedPassword = await bcrypt.hash(req.body.password, genSalt);
+
+        const data = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await Users.findById(data.id);
+
+        if(!user){
+            res.status(404).json({status: "Unsuccessful", message: "Token is not Valid. Regenerate Token."});
+            return;
+        }
+
+        user.password = encodedPassword;
+        user.save();
+
+        res.status(200).json({status: "Successful", message: "Password is reset Successfully."})
+        
+    } catch (error) {
+        res.status(500).json({status: "Unsuccessful", message: error});
+    }
+}
+
+module.exports = {createUser, loginUser, verification, resendVerification, forgotUsername, forgotPassword, setPassword};

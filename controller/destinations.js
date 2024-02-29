@@ -5,7 +5,7 @@ const getAllDestinations = async (req, res) =>{
         const allDestinations = await Destination.find({});
         res.status(200).json({allDestinations});
     } catch (error) {
-        res.status(500).json({"status": "Unsuccessful", "message": error})
+        res.status(500).json({status: "Unsuccessful", message: error})
     }
 }
 
@@ -28,12 +28,11 @@ const postDestination = async (req, res) =>{
         await destination.save();
         res.status(201).json({destination});
     } catch (error) {
-        res.status(500).json({"status": "Unsuccessful", "message": error})
+        res.status(500).json({status: "Unsuccessful", message: error})
     }
 }
 
 const updateDestination = async (req, res) =>{
-    console.log("req: ", req.body, "\nparams: ", req.params);
     try {
         const {id: destinationID } = req.params;
         const result = await Destination.findByIdAndUpdate({_id: destinationID}, req.body, {
@@ -41,11 +40,11 @@ const updateDestination = async (req, res) =>{
             runValidators: true
         });
         if(!result){
-            res.status(404).json({"msg": "Destination ID not found."});
+            res.status(404).json({msg: "Destination ID not found."});
         }
         res.status(200).json({result});
     } catch (error) {
-        res.status(500).json({"status": "Unsuccessful", "message": error})
+        res.status(500).json({status: "Unsuccessful", message: error})
     }
 }
 
@@ -53,12 +52,12 @@ const deleteDestination = async (req, res) =>{
     try {
         const {id: destinationID} = req.params;
         if(!destinationID){
-            res.status(404).json({"msg": "Destination ID not found."});
+            res.status(404).json({msg: "Destination ID not found."});
         }
         const result = await Destination.findByIdAndDelete({_id: destinationID})
         res.status(200).json({result});
     } catch (error) {
-        res.status(500).json({"status": "Unsuccessful", "message": error})
+        res.status(500).json({status: "Unsuccessful", message: error})
     }
 }
 

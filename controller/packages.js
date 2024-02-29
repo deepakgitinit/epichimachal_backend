@@ -20,7 +20,7 @@ const postPackage = async (req, res) =>{
         await package.save();
         res.status(201).json({package});
     } catch (error) {
-        res.status(500).json({"status": "Unsuccessful", "message": error})
+        res.status(500).json({status: "Unsuccessful", message: error})
     }
 }
 
@@ -28,12 +28,12 @@ const updatePackage = async (req, res)=>{
     try {
         const {id: packageID } = req.params;
         if(!packageID){
-            res.status(404).json({"msg": "Package ID not found."});
+            res.status(404).json({msg: "Package ID not found."});
         }
         const result = await Package.findByIdAndUpdate(packageID, req.body);
         res.status(200).json({result});
     } catch (error) {
-        res.status(500).json({"status": "Unsuccessful", "message": error})
+        res.status(500).json({status: "Unsuccessful", message: error})
     }
 }
 
@@ -46,7 +46,7 @@ const deletePackage = async (req, res)=>{
         const result = await Package.findByIdAndDelete({_id: packageID})
         res.status(200).json({result});
     } catch (error) {
-        res.status(500).json({"status": "Unsuccessful", "message": error})
+        res.status(500).json({status: "Unsuccessful", message: error})
     }
 }
 

@@ -3,8 +3,9 @@ const { getAllDestinations, postDestination, updateDestination, deleteDestinatio
 const router = express.Router();
 
 const multer = require('../middlewares/multer');
+const auth = require("../middlewares/auth");
 
-router.route("/").get(getAllDestinations).post([multer.array('images'), postDestination]);
-router.route("/:id").patch(updateDestination).delete(deleteDestination);
+router.route("/").get(getAllDestinations).post(auth, [multer.array('images'), postDestination]);
+router.route("/:id").patch(auth, updateDestination).delete(auth, deleteDestination);
 
 module.exports = router;
