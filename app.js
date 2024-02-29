@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 
 const connectDB = require("./db/connect");
+
+// Routes
 const packages = require('./routes/packages.js');
 const destinations = require("./routes/destinations.js");
 const users = require("./routes/users.js");

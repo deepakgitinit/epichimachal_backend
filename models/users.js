@@ -11,6 +11,7 @@ const users = new mongoose.Schema({
     email: {
         type: String,
         unique: true,
+        isEmail: true,
         required: [true, "Email required."],
     },
     phone: {
@@ -24,6 +25,10 @@ const users = new mongoose.Schema({
         uppercase: true,
         enum: ["USER", "ADMIN"],
         default: "USER"
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
     }
 })
 
