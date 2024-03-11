@@ -5,20 +5,22 @@ const verificationMail = async (id, username, email) =>{
     const token = jwt.sign({id: id}, process.env.JWT_SECRET, {
         expiresIn: "30m"
     });
+
     if(token){
         try {
             await sendingMail({
-                from: "no-reply@travelmorehimachal.com",
+                from: "no-reply@epichimachal.com",
                 to: `${email}`,
                 subject: "Account Verification Link",
-                text: `Hello, ${username}. Please verify your email by
-                clicking this link, link is activated for 30 minutes only :
+                text: `Hello, ${username?username:"user"}. Welcome to EpicHimachal. 
+                Please verify your email by clicking this link, link is activated for 30 minutes only :
                 http://localhost:5000/api/v1/users/${token}`,
             })
             return true;
 
         } catch(error) {
             console.log({status: "Unsuccessful", message: error});
+            return false;
         }
     }else{
         return false;

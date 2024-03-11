@@ -12,8 +12,13 @@ const createUser = async (req, res) => {
             return;
         }
         const user = await Users.findOne({username: req.body.username})
+        const iemail = await Users.findOne({email: req.body.email});
         if(user){
             res.status(406).json({status: "Unsuccessful", message: "Username Already Exists."});
+            return;
+        }
+        if(iemail){
+            res.status(406).json({status: "Unsuccessful", message: "Email Already Exists."});
             return;
         }
         

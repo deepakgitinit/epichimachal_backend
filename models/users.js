@@ -4,12 +4,10 @@ const users = new mongoose.Schema({
     username: {
         type: String,
         unique: true,
-        required: [true, "Username cannot be empty."],
+        required: [true, "Email required."],
     },
-    password: String,
     name: {
-        type: String,
-        required: [true, "Name cannot be empty"]
+        type: String
     },
     email: {
         type: String,
@@ -17,9 +15,12 @@ const users = new mongoose.Schema({
         isEmail: true,
         required: [true, "Email required."],
     },
+    password: {
+        type: String,
+        required: [true, "Password required"]
+    },
     phone: {
         type: String,
-        unique: true,
     },
     address: String,
     profile: String,

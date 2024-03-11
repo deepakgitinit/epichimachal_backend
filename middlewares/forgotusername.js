@@ -6,7 +6,7 @@ const forgotusername = async (name, username, email) =>{
             from: "no-reply@travelmorehimachal.com",
             to: `${email}`,
             subject: "Forgot username Link",
-            text: `Hello ${name}. Your username is ${username}`,
+            text: `Hello ${name?name:"user"}. Your username is ${username}`,
         });
         return true;
 

@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const cors = require('cors');
 
 const connectDB = require("./db/connect");
 
@@ -15,6 +16,7 @@ const uri = process.env.DB_URI;
 const port = process.env.APP_PORT;
 
 //Middlewares
+app.use(cors());
 app.use('/public', express.static('public'))
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
