@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 
 const forgotusername = async (id, name, email) =>{
     const token = jwt.sign({id: id}, process.env.JWT_SECRET, {
-        expiresIn: "30m"
+        expiresIn: "10m"
     });
 
     try {
@@ -11,8 +11,8 @@ const forgotusername = async (id, name, email) =>{
             from: "no-reply@travelmorehimachal.com",
             to: `${email}`,
             subject: "Forgot password Link",
-            text: `Hello ${name}. Please reset your password from given
-            link, link is activated for 30 minutes only :
+            text: `Hello ${name?name:"User"}. Please reset your password from given
+            link, link is activated for 10 minutes only :
             http://localhost:5000/api/v1/users/forgotpassword/${token}`,
         });
         return true;

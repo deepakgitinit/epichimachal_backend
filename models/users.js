@@ -3,8 +3,6 @@ const mongoose = require("mongoose");
 const users = new mongoose.Schema({
     username: {
         type: String,
-        unique: true,
-        required: [true, "Email required."],
     },
     name: {
         type: String
@@ -33,6 +31,9 @@ const users = new mongoose.Schema({
     isVerified: {
         type: Boolean,
         default: false
+    },
+    subscription: {
+        type: Boolean,
     }
 })
 

@@ -7,18 +7,13 @@ const forgotpassword = require("../middlewares/forgotpassword");
 
 const createUser = async (req, res) => {
     try {
-        if(!req.body.username || !req.body.password || !req.body.email){
-            res.status(400).json({status: "Unsuccessful", msg: "Username or Password Cannot be Empty."})
+        if( !req.body.password || !req.body.email){
+            res.status(400).json({status: "Unsuccessful", msg: "Email or Password Cannot be Empty."})
             return;
         }
-        const user = await Users.findOne({username: req.body.username})
-        const iemail = await Users.findOne({email: req.body.email});
+        const user = await Users.findOne({email: req.body.email})
         if(user){
-            res.status(406).json({status: "Unsuccessful", message: "Username Already Exists."});
-            return;
-        }
-        if(iemail){
-            res.status(406).json({status: "Unsuccessful", message: "Email Already Exists."});
+            res.status(406).json({status: "Unsuccessful", message: "Email Already Registered."});
             return;
         }
         
@@ -34,7 +29,8 @@ const createUser = async (req, res) => {
             address: req.body.address,
             profile: "",
             role: "USER",
-            isVerified: false
+            isVerified: false,
+            subscription: req.body.subscription
         })
         if(req.file){
             User.profile = req.file.path;
@@ -42,9 +38,8 @@ const createUser = async (req, res) => {
 
         const createdUser = await User.save();
         const id = createdUser._id.toString();
-        const username = createdUser.username;
         const email = createdUser.email;
-        const result = verificationMail(id, username, email);
+        const result = verificationMail(id, email);
 
         if(result){
             res.status(201).json({status: "Successful", message: "User successfully created. Check for verification mail"});
@@ -60,13 +55,13 @@ const createUser = async (req, res) => {
 
 const loginUser = async (req, res) =>{
     try {
-        if(!req.body.username || !req.body.password){
+        if(!req.body.email || !req.body.password){
             res.status(400).json({status: "Unsuccessful", message: "Credentials cannot be empty."})
             return;
         }
-        const user = await Users.findOne({username: req.body.username})
+        const user = await Users.findOne({email: req.body.email})
         if(!user){
-            res.status(401).json({status: "Unsuccessful", message: "Username is incorrect."});
+            res.status(401).json({status: "Unsuccessful", message: "Email is incorrect."});
             return;
         }
         if(!user.isVerified){
@@ -75,11 +70,13 @@ const loginUser = async (req, res) =>{
         }
         let token;
         if(await bcrypt.compare(req.body.password, user.password)){
-            token = jwt.sign({userID: user.id, username: user.username, role: user.role}, process.env.JWT_SECRET, {
+            token = jwt.sign({userID: user.id, role: user.role}, process.env.JWT_SECRET, {
                 expiresIn: "30d",
             });
+            res.status(200).json({status: "Successful", message: token})
+            return;
         }
-        res.status(200).json({status: "Successful", message: token})
+        res.status(401).json({status: "Unsuccesful", message: "Password is incorrect!"});
         
     } catch (error) {
         res.status(500).json({status: "Unsuccessful", message: error});
@@ -112,13 +109,13 @@ const verification = async(req, res) =>{
 
 const resendVerification = async (req, res) =>{
     try {
-        const username = req.body.username;
-        const user = await Users.findOne({username: username});
+        const email = req.body.email;
+        const user = await Users.findOne({email: email});
         if(!user){
-            res.status(404).json({status: "Unsuccessful", message: "Username not found."});
+            res.status(404).json({status: "Unsuccessful", message: "Email not found."});
             return;
         }
-        const result = await verificationMail(user.id, user.username, user.email);
+        const result = await verificationMail(user.id, user.email);
     
         if(result){
             res.status(200).json({status: "Successful", message: "Check for verification mail"});
@@ -140,6 +137,10 @@ const forgotUsername = async (req, res) =>{
             res.status(404).json({status: "Unsuccessful", message: "Email not registered."});
             return;
         }
+        if(!user.username){
+            res.status(404).json({status: "Unsuccessful", message: "Username not found."});
+            return;
+        }
         const result = await forgotusername(user.name, user.username, user.email);
 
         if(result){
@@ -156,8 +157,8 @@ const forgotUsername = async (req, res) =>{
 
 const forgotPassword = async (req, res) =>{
     try {
-        const username = req.body.username;
-        const user = await Users.findOne({username: username});
+        const email = req.body.email;
+        const user = await Users.findOne({email: email});
 
         if(!user){
             res.status(404).json({status: "Unsuccessful", message: "Email not registered."});

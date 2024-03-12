@@ -1,7 +1,7 @@
 const sendingMail = require("./nodemailer")
 const jwt = require("jsonwebtoken");
 
-const verificationMail = async (id, username, email) =>{
+const verificationMail = async (id, email) =>{
     const token = jwt.sign({id: id}, process.env.JWT_SECRET, {
         expiresIn: "30m"
     });
@@ -12,7 +12,7 @@ const verificationMail = async (id, username, email) =>{
                 from: "no-reply@epichimachal.com",
                 to: `${email}`,
                 subject: "Account Verification Link",
-                text: `Hello, ${username?username:"user"}. Welcome to EpicHimachal. 
+                text: `Hello, ${email}. Welcome to EpicHimachal.
                 Please verify your email by clicking this link, link is activated for 30 minutes only :
                 http://localhost:5000/api/v1/users/${token}`,
             })
