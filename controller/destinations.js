@@ -10,6 +10,7 @@ const getAllDestinations = async (req, res) =>{
 }
 
 const postDestination = async (req, res) =>{
+    // console.log(req.user);
     try {
         let tags = [];
         tags = req.body.tags.split(",")
@@ -27,6 +28,7 @@ const postDestination = async (req, res) =>{
         }
         await destination.save();
         res.status(201).json({destination});
+
     } catch (error) {
         res.status(500).json({status: "Unsuccessful", message: error})
     }

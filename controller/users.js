@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const verificationMail = require("../middlewares/verificationmail");
 const forgotusername = require("../middlewares/forgotusername");
 const forgotpassword = require("../middlewares/forgotpassword");
+const { findById, findByIdAndUpdate } = require("../models/packages");
 
 const createUser = async (req, res) => {
     try {
@@ -78,6 +79,65 @@ const loginUser = async (req, res) =>{
         }
         res.status(401).json({status: "Unsuccesful", message: "Password is incorrect!"});
         
+    } catch (error) {
+        res.status(500).json({status: "Unsuccessful", message: error});
+    }
+}
+
+const userProfile = async(req, res) =>{
+    try {
+        const userReq = req.user;
+        const user = await Users.findById(userReq.userID);
+        const userObj = {
+            username: user.username,
+            email: user.email,
+            profile: user.profile,
+            phone: user.phone,
+            verified: user.isVerified,
+            subscription: user.subscription
+        }
+        if(!user){
+            res.status(404).json({status: "Unsuccessful", message: "User not found."});
+            return;
+        }
+    
+        res.status(200).json({status: "Successful", message: userObj})
+
+    } catch (error) {
+        res.status(500).json({status: "Unsuccessful", message: error});
+    }
+}
+
+const updateUser = async (req, res) =>{
+    try {
+        const userReq = req.user;
+
+        const user = await Users.findById(userReq.userID);
+        if(!user){
+            res.status(404).json({status: "Unsuccessful", message: "User not found."});
+            return;
+        }
+        
+        const username = await Users.findOne({username: req.body.username});
+        if(username._id.toString() != userReq.userID){
+            res.status(406).json({status: "Unsuccessful", message: "Username already exists."});
+            return;
+        }
+
+        const User = req.body
+        if(req.file){
+            User.profile = req.file.path;
+        }
+
+        const response = await Users.findByIdAndUpdate(userReq.userID, User, { new: true })
+        
+        if(response){
+            res.status(201).json({status: "Successful", message: "Succesfully Updated"});
+            return;
+        }
+
+        res.status(404).json({status: "Unsuccesful", message: "Internal Error"})
+
     } catch (error) {
         res.status(500).json({status: "Unsuccessful", message: error});
     }
@@ -202,4 +262,4 @@ const setPassword = async(req, res) =>{
     }
 }
 
-module.exports = {createUser, loginUser, verification, resendVerification, forgotUsername, forgotPassword, setPassword};
+module.exports = {createUser, loginUser, userProfile, updateUser, verification, resendVerification, forgotUsername, forgotPassword, setPassword};
