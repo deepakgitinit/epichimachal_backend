@@ -18,7 +18,7 @@ const postPackage = async (req, res) =>{
             package.thumbnail = req.file.path;
         }
         await package.save();
-        res.status(201).json({package});
+        res.status(201).json({status: "Successful", message: "Package Created Successful"});
     } catch (error) {
         res.status(500).json({status: "Unsuccessful", message: error})
     }

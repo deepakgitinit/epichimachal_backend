@@ -10,8 +10,9 @@ const authentication = async (req, res, next) =>{
         const token = authHeader.split(" ")[1];
         const payload = jwt.verify(token, process.env.JWT_SECRET);
         req.user = { userID: payload.userID, role: payload.role}
-        next();
 
+        next();
+        
     } catch (error) {
         res.status(500).json({status: "Unsuccessful", message: error});
     }

@@ -8,6 +8,7 @@ const connectDB = require("./db/connect");
 const packages = require('./routes/packages.js');
 const destinations = require("./routes/destinations.js");
 const users = require("./routes/users.js");
+const bookings = require("./routes/bookings.js");
 
 //Environment Variables
 const dotenv = require('dotenv');
@@ -25,6 +26,7 @@ app.use(express.urlencoded({extended: true}));
 app.use("/api/v1/packages", packages);
 app.use("/api/v1/destinations", destinations)
 app.use("/api/v1/users", users)
+app.use("/api/v1/bookings", bookings)
 
 const start = async () =>{
     try {

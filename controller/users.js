@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 const verificationMail = require("../middlewares/verificationmail");
 const forgotusername = require("../middlewares/forgotusername");
 const forgotpassword = require("../middlewares/forgotpassword");
-const { findById, findByIdAndUpdate } = require("../models/packages");
 
 const createUser = async (req, res) => {
     try {
@@ -69,12 +68,12 @@ const loginUser = async (req, res) =>{
             res.status(401).json({status: "Unsuccessful", message: "Account is not verified."});
             return;
         }
-        let token;
+
         if(await bcrypt.compare(req.body.password, user.password)){
-            token = jwt.sign({userID: user.id, role: user.role}, process.env.JWT_SECRET, {
+            const token = jwt.sign({userID: user.id, role: user.role}, process.env.JWT_SECRET, {
                 expiresIn: "30d",
             });
-            res.status(200).json({status: "Successful", message: token})
+            res.status(200).json({status: "Successful", message: token, profile: user.profile, role: user.role})
             return;
         }
         res.status(401).json({status: "Unsuccesful", message: "Password is incorrect!"});
@@ -89,6 +88,7 @@ const userProfile = async(req, res) =>{
         const userReq = req.user;
         const user = await Users.findById(userReq.userID);
         const userObj = {
+            name: user.name,
             username: user.username,
             email: user.email,
             profile: user.profile,
