@@ -16,7 +16,8 @@ const packages = new mongoose.Schema({
     tags: Array,
     destinations: Array,
     time: String,
-    thumbnail: String
+    thumbnail: String,
+    description: String
 })
 
 module.exports = mongoose.model("package", packages);
