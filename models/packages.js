@@ -6,15 +6,15 @@ const packages = new mongoose.Schema({
         required: [true, "Name cannot be empty"],
         trim: true,
         // maxLength: [50, "Max length is 50 characters"],
-        // default: false
     },
     price: {
         type: Number,
         required: [true, "Price cannot be empty"]
     },
     category: Array,
-    tags: Array,
+    passengers: String,
     destinations: Array,
+    taxi: String,
     time: String,
     thumbnail: String,
     description: String

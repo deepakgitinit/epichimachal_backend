@@ -11,7 +11,6 @@ router.route("/profile").get(auth, userProfile);
 router.route("/update").post(auth, multer.single("profile"), updateUser)
 router.route("/:verification").get(verification);
 router.route("/resend").post(resendVerification);
-router.route("/forgotusername").post(forgotUsername);
 router.route("/forgotpassword").post(forgotPassword)
 router.route("/setpassword/:token").post(setPassword);
 

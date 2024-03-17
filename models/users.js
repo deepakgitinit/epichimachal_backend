@@ -1,10 +1,6 @@
 const mongoose = require("mongoose");
 
 const users = new mongoose.Schema({
-    username: {
-        type: String,
-        default: "",
-    },
     name: {
         type: String
     },
@@ -20,9 +16,16 @@ const users = new mongoose.Schema({
     },
     phone: {
         type: String,
+        default: ""
     },
-    address: String,
-    profile: String,
+    address: {
+        type: String,
+        default: ""
+    },
+    profile: {
+        type: String,
+        default: ""
+    },
     role: {
         type: String,
         uppercase: true,

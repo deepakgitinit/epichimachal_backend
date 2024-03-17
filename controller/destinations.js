@@ -3,8 +3,17 @@ const User = require("../models/users");
 
 const getAllDestinations = async (req, res) => {
   try {
+    const { limit } = req.query;
+
+    if (limit) {
+      const allDestinations = await Destination.find({}).limit(limit);
+      res.status(200).json({ allDestinations });
+      return
+    }
+
     const allDestinations = await Destination.find({});
     res.status(200).json({ allDestinations });
+
   } catch (error) {
     res.status(500).json({ status: "Unsuccessful", message: error });
   }

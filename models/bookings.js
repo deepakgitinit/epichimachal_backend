@@ -6,27 +6,19 @@ const bookings = new mongoose.Schema({
         required: [true, "User ID is required."]
     },
     email: String,
-    name: {
-        type: String,
-        default: "",
-    },
-    phone: {
-        type: String,
-        default: ""
-    },
     pickup: String,
     destination: String,
     passengers: String,
     fromdate: Date,
     todate: Date,
-    car: String,
+    taxi: String,
     status: {
         type: String,
         default: "Pending"
     },
-    packages: {
-        type: Array,
-        default: []
+    package: {
+        type: String,
+        default: ""
     }
 })
 

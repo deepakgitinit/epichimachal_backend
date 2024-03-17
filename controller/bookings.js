@@ -1,5 +1,6 @@
 const Bookings = require("../models/bookings");
 const User = require("../models/users");
+const Package = require("../models/packages");
 const bookingReq = require("../middlewares/bookingreq");
 
 const getBookings = async (req, res) => {
@@ -35,6 +36,22 @@ const confirmBooking = async (req, res) => {
     if (user.phone) {
       const phone = user.phone;
       Booking.phone = phone;
+    }else{
+      
+      res
+      .status(200)
+      .json({ status: "Unsuccesful", message: "Phone Number required for Booking." });
+      return
+    }
+    if(req.body.package){
+      const packageName = req.body.package;
+      const {passengers, taxi} = await Package.findOne({title: packageName})
+      if (passengers) {
+        Booking.passengers = passengers;
+      }
+      if (taxi) {
+        Booking.taxi = taxi;
+      }
     }
 
     Booking.email = email;
@@ -92,14 +109,28 @@ const updateBooking = async (req, res) => {
     res.status(404).json({ status: "Unsuccessful", message: error });
   }
 
-  const deleteBooking = async (req, res) =>{
-    try {
-      re
-    } catch (error) {
-      
-    }
-  }
-
 };
 
-module.exports = { getBookings, confirmBooking, updateBooking };
+const deleteBooking = async (req, res) =>{
+  try {
+    const id = req.params.id;
+    const response = await Bookings.findByIdAndDelete(id);
+
+    if (response) {
+      res
+        .status(200)
+        .json({ status: "Successful", message: "Booking Deleted Successfully." });
+      return;
+    }
+    res
+      .status(400)
+      .json({ status: "Unsuccesful", message: "Booking not Deleted." });
+    return;
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ status: "Unsuccessful", message: "Internal Server Error" })
+  }
+}
+
+module.exports = { getBookings, confirmBooking, updateBooking, deleteBooking };

@@ -2,7 +2,6 @@ const Users = require("../models/users");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const verificationMail = require("../middlewares/verificationmail");
-const forgotusername = require("../middlewares/forgotusername");
 const forgotpassword = require("../middlewares/forgotpassword");
 
 const createUser = async (req, res) => {
@@ -13,7 +12,7 @@ const createUser = async (req, res) => {
         }
         const user = await Users.findOne({email: req.body.email})
         if(user){
-            res.status(406).json({status: "Unsuccessful", message: "Email Already Registered."});
+            res.status(200).json({status: "Unsuccessful", message: "Email Already Registered."});
             return;
         }
         
@@ -21,20 +20,10 @@ const createUser = async (req, res) => {
         const encodedPassword = await bcrypt.hash(req.body.password, genSalt);
 
         const User = new Users({
-            name: req.body.name,
-            username: req.body.username,
-            password: encodedPassword,
             email: req.body.email,
-            phone: req.body.phone,
-            address: req.body.address,
-            profile: "",
-            role: "USER",
-            isVerified: false,
+            password: encodedPassword,
             subscription: req.body.subscription
         })
-        if(req.file){
-            User.profile = req.file.path;
-        }
 
         const createdUser = await User.save();
         const id = createdUser._id.toString();
@@ -89,9 +78,9 @@ const userProfile = async(req, res) =>{
         const user = await Users.findById(userReq.userID);
         const userObj = {
             name: user.name,
-            username: user.username,
             email: user.email,
             profile: user.profile,
+            address: user.address,
             phone: user.phone,
             verified: user.isVerified,
             subscription: user.subscription
@@ -117,22 +106,26 @@ const updateUser = async (req, res) =>{
             res.status(404).json({status: "Unsuccessful", message: "User not found."});
             return;
         }
-        
-        const username = await Users.findOne({username: req.body.username});
-        if(username._id.toString() != userReq.userID){
-            res.status(406).json({status: "Unsuccessful", message: "Username already exists."});
+
+        const User = req.body;
+        if(User.email != user.email){
+            res.status(406).json({status: "Unsuccessful", message: "Email cannot be updated."});
+            return;
+        }
+        const num = await Users.findOne({phone: User.phone});
+        if(num){
+            res.status(406).json({status: "Unsuccessful", message: "Phone number is already exists."});
             return;
         }
 
-        const User = req.body
         if(req.file){
             User.profile = req.file.path;
         }
 
         const response = await Users.findByIdAndUpdate(userReq.userID, User, { new: true })
-        
+
         if(response){
-            res.status(201).json({status: "Successful", message: "Succesfully Updated"});
+            res.status(201).json({status: "Successful", message: "Succesfully Updated", profile: response.profile});
             return;
         }
 
@@ -188,33 +181,6 @@ const resendVerification = async (req, res) =>{
     }
 }
 
-const forgotUsername = async (req, res) =>{
-    try {
-        const email = req.body.email;
-        const user = await Users.findOne({email: email});
-
-        if(!user){
-            res.status(404).json({status: "Unsuccessful", message: "Email not registered."});
-            return;
-        }
-        if(!user.username){
-            res.status(404).json({status: "Unsuccessful", message: "Username not found."});
-            return;
-        }
-        const result = await forgotusername(user.name, user.username, user.email);
-
-        if(result){
-            res.status(200).json({status: "Successful", message: "Check your mail for username"});
-        }else{
-            res.status(500).json({status: "Unsuccessful", message: "Internal error while sending mail."});
-        }
-
-    } catch (error) {
-        res.status(500).json({status: "Unsuccessful", message: error});
-    }
-    
-}
-
 const forgotPassword = async (req, res) =>{
     try {
         const email = req.body.email;
@@ -262,4 +228,4 @@ const setPassword = async(req, res) =>{
     }
 }
 
-module.exports = {createUser, loginUser, userProfile, updateUser, verification, resendVerification, forgotUsername, forgotPassword, setPassword};
+module.exports = {createUser, loginUser, userProfile, updateUser, verification, resendVerification, forgotPassword, setPassword};

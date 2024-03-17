@@ -2,6 +2,15 @@ const Package = require("../models/packages");
 const User = require("../models/users");
 
 const getPackages = async (req, res) => {
+
+  const {limit} = req.query;
+
+  if (limit) {
+    const allPackages = await Package.find({}).limit(limit);
+    res.status(200).json({ allPackages });
+    return
+  }
+
   const allPackages = await Package.find({});
   res.status(200).json({ allPackages });
 };
@@ -20,14 +29,24 @@ const postPackage = async (req, res) => {
   const userid = req.user.userID;
   const user = await User.findById(userid);
 
+  const package = await Package.findOne({title: req.body.title});
+
+  if(package){
+    res
+      .status(200)
+      .json({ status: "Unsuccessful", message: "Package Name Already There" });
+      return;
+  }
+
   if (user.role == "ADMIN") {
     try {
       const package = new Package({
         title: req.body.title,
         price: req.body.price,
         category: req.body.category,
-        tags: req.body.tags,
+        passengers: req.body.passengers,
         destinations: req.body.destinations,
+        taxi: req.body.taxi,
         time: req.body.time,
         description: req.body.description,
         thumbnail: "",
