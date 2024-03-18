@@ -112,8 +112,9 @@ const updateUser = async (req, res) =>{
             res.status(406).json({status: "Unsuccessful", message: "Email cannot be updated."});
             return;
         }
+
         const num = await Users.findOne({phone: User.phone});
-        if(num){
+        if(num && num.phone !="" && num.phone != user.phone){
             res.status(406).json({status: "Unsuccessful", message: "Phone number is already exists."});
             return;
         }
@@ -133,6 +134,7 @@ const updateUser = async (req, res) =>{
 
     } catch (error) {
         res.status(500).json({status: "Unsuccessful", message: error});
+        console.log(error);
     }
 }
 
@@ -142,18 +144,21 @@ const verification = async(req, res) =>{
         const data = jwt.verify(verification, process.env.JWT_SECRET);
 
         const user = await Users.findById(data.id);
+
         if(!user){
-            res.status(404).json({status: "Unsuccessful", message: "User not found."});
+            res.status(200).json({status: "Unsuccessful", message: "User not found."});
             return;
         }
-        if(user.isVerified){
-            res.status(404).json({status: "Unsuccessful", message: "User is Already Verified."});
+        else if(user.isVerified){
+            res.status(200).json({status: "Unsuccessful", message: "User is Already Verified."});
             return;
+
+        } else{
+            user.isVerified = true;
+            await user.save();
+            res.status(200).json({status: "Successful", message: "Account Verified."})
+            return
         }
-        user.isVerified = true;
-        user.save();
-    
-        res.status(200).json({status: "Successful", message: "Account Verified."})
 
     } catch (error) {
         res.status(500).json({status: "Unsuccessful", message: error});
@@ -165,7 +170,11 @@ const resendVerification = async (req, res) =>{
         const email = req.body.email;
         const user = await Users.findOne({email: email});
         if(!user){
-            res.status(404).json({status: "Unsuccessful", message: "Email not found."});
+            res.status(200).json({status: "Unsuccessful", message: "Email not found."});
+            return;
+        }
+        if(user.isVerified == true){
+            res.status(200).json({status: "Unsuccessful", message: "User is already verified."});
             return;
         }
         const result = await verificationMail(user.id, user.email);
@@ -190,7 +199,7 @@ const forgotPassword = async (req, res) =>{
             res.status(404).json({status: "Unsuccessful", message: "Email not registered."});
             return;
         }
-        const result = await forgotpassword(user.id, user.name, user.email);
+        const result = await forgotpassword(user.id, user.email);
 
         if(result){
             res.status(200).json({status: "Successful", message: "Check your mail for Password reset link."});
@@ -206,10 +215,6 @@ const forgotPassword = async (req, res) =>{
 const setPassword = async(req, res) =>{
     try {
         const {token} = req.params;
-        
-        const genSalt = await bcrypt.genSalt(12);
-        const encodedPassword = await bcrypt.hash(req.body.password, genSalt);
-
         const data = jwt.verify(token, process.env.JWT_SECRET);
         const user = await Users.findById(data.id);
 
@@ -217,6 +222,10 @@ const setPassword = async(req, res) =>{
             res.status(404).json({status: "Unsuccessful", message: "Token is not Valid. Regenerate Token."});
             return;
         }
+        
+        const genSalt = await bcrypt.genSalt(12);
+        const encodedPassword = await bcrypt.hash(req.body.password, genSalt);
+
 
         user.password = encodedPassword;
         user.save();
@@ -228,4 +237,28 @@ const setPassword = async(req, res) =>{
     }
 }
 
-module.exports = {createUser, loginUser, userProfile, updateUser, verification, resendVerification, forgotPassword, setPassword};
+const setSettingsPassword = async(req, res) =>{
+    try {
+        const {userID} = req.user;
+        const user = await Users.findById(userID);
+        
+        if(!user){
+            res.status(404).json({status: "Unsuccessful", message: "Token is not Valid. Regenerate Token."});
+            return;
+        }
+        
+        const genSalt = await bcrypt.genSalt(12);
+        const encodedPassword = await bcrypt.hash(req.body.password, genSalt);
+
+
+        user.password = encodedPassword;
+        user.save();
+
+        res.status(200).json({status: "Successful", message: "Password is reset Successfully."})
+        
+    } catch (error) {
+        res.status(500).json({status: "Unsuccessful", message: error});
+    }
+}
+
+module.exports = {createUser, loginUser, userProfile, updateUser, verification, resendVerification, forgotPassword, setPassword, setSettingsPassword};

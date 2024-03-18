@@ -1,5 +1,5 @@
 const express = require("express");
-const {createUser, loginUser, userProfile, updateUser, verification, resendVerification, forgotUsername, forgotPassword, setPassword} = require("../controller/users");
+const {createUser, loginUser, userProfile, updateUser, verification, resendVerification, forgotPassword, setPassword, setSettingsPassword} = require("../controller/users");
 
 const router = express.Router();
 const multer = require("../middlewares/multer");
@@ -12,6 +12,7 @@ router.route("/update").post(auth, multer.single("profile"), updateUser)
 router.route("/:verification").get(verification);
 router.route("/resend").post(resendVerification);
 router.route("/forgotpassword").post(forgotPassword)
+router.route("/setpassword").post(auth, setSettingsPassword);
 router.route("/setpassword/:token").post(setPassword);
 
 module.exports = router;

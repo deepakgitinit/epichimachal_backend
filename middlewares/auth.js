@@ -15,6 +15,7 @@ const authentication = async (req, res, next) =>{
         
     } catch (error) {
         res.status(500).json({status: "Unsuccessful", message: error});
+        console.log(error);
     }
 }
 

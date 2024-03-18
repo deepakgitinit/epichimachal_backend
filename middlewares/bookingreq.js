@@ -6,8 +6,10 @@ const bookingReq = async (email) => {
       from: "no-reply@epichimachal.com",
       to: `${email}`,
       subject: "Your Booking is Pendiing.",
-      text: `Hello, ${email}. Welcome to EpicHimachal.
-              Thank you for your booking. We will catch up you really soon.`,
+      html: `
+      <p>Hello, ${email}.</p>
+      <p>Thank you for your booking. We will catch up you really soon.</p>
+      `,
     });
     return true;
   } catch (error) {

@@ -1,26 +1,67 @@
-const sendingMail = require("./nodemailer")
+const sendingMail = require("./nodemailer");
 const jwt = require("jsonwebtoken");
 
-const forgotusername = async (id, name, email) =>{
-    const token = jwt.sign({id: id}, process.env.JWT_SECRET, {
-        expiresIn: "10m"
+const forgotpassword = async (id, email) => {
+  const token = jwt.sign({ id: id }, process.env.JWT_SECRET, {
+    expiresIn: "10m",
+  });
+
+  try {
+    await sendingMail({
+      from: "no-reply@travelmorehimachal.com",
+      to: email,
+      subject: "Forgot Password Link",
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Email Verification</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: #f5f5f5; /* Grey background */
+                font-family: Arial, sans-serif;
+            }
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #ffffff; /* White container background */
+                border-radius: 10px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .button {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #b3ffff; /* Blue button color */
+                color: #ffffff;
+                text-decoration: none;
+                border-radius: 5px;
+            }
+        </style>
+        </head>
+        <body>
+            <div class="container">
+                <img src="https://img.freepik.com/free-vector/bird-colorful-logo-gradient-vector_343694-1365.jpg?size=338&ext=jpg&ga=GA1.1.735520172.1710633600&semt=sph" />
+                <h2>Password Reset Link</h2>
+                <p>Click the button to reset your Password:</p>
+                <a href="http://localhost:5173/resetpassword/${token}" target="_blank" class="button">Reset Password</a>
+                <p>Valid for 10 minutes only.</p>
+            </div>
+        </body>
+        </html>
+      `,
+
     });
 
-    try {
-        await sendingMail({
-            from: "no-reply@travelmorehimachal.com",
-            to: `${email}`,
-            subject: "Forgot password Link",
-            text: `Hello ${name?name:"User"}. Please reset your password from given
-            link, link is activated for 10 minutes only :
-            http://localhost:5000/api/v1/users/forgotpassword/${token}`,
-        });
-        return true;
+    return true;
+  } catch (error) {
+    console.error("Error sending email:", error);
+    return false;
+  }
+};
 
-    } catch(error) {
-        console.log({status: "Unsuccessful", message: error});
-        return false;
-    }
-}
-
-module.exports = forgotusername;
+module.exports = forgotpassword;

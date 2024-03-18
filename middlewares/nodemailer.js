@@ -1,12 +1,12 @@
 const nodemailer = require('nodemailer')
 
-const sendingMail = async({from, to, subject, text}) =>{
+const sendingMail = async({from, to, subject, html}) =>{
   try {
     let mailOptions = ({
       from,
       to,
       subject,
-      text
+      html
     })
 
     const Transporter = nodemailer.createTransport({
