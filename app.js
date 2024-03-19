@@ -11,6 +11,7 @@ const users = require("./routes/users.js");
 const bookings = require("./routes/bookings.js");
 const taxi = require("./routes/taxi.js");
 const pickup = require("./routes/pickup.js");
+const contact = require("./routes/contact.js");
 
 //Environment Variables
 const dotenv = require('dotenv');
@@ -19,10 +20,15 @@ const uri = process.env.DB_URI;
 const port = process.env.APP_PORT;
 
 //Middlewares
+var corsOptions = {
+    origin: 'http://localhost:5173',
+    optionsSuccessStatus: 200 // For legacy browser support
+}
+
 app.use(cors());
 app.use('/public', express.static('public'))
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({extended: false}));
 
 //Routers
 app.use("/api/v1/packages", packages);
@@ -31,6 +37,7 @@ app.use("/api/v1/users", users)
 app.use("/api/v1/bookings", bookings)
 app.use("/api/v1/taxi", taxi)
 app.use("/api/v1/pickup", pickup)
+app.use("/api/v1/contact", contact)
 
 const start = async () =>{
     try {

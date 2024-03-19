@@ -29,23 +29,27 @@ const confirmBooking = async (req, res) => {
     const user = await User.findById(userID);
     const email = user.email;
 
-    if (user.name) {
-      const name = user.name;
-      Booking.name = name;
+    if (user.name!=null) {
+      Booking.name = user.name;
     }
+    
     if (user.phone) {
-      const phone = user.phone;
-      Booking.phone = phone;
-    }else{
-      
+      Booking.phone = user.phone;
+    } else {
       res
       .status(200)
-      .json({ status: "Unsuccesful", message: "Phone Number required for Booking." });
-      return
+      .json({
+        status: "Unsuccesful",
+        message: "Phone Number required for Booking.",
+      });
+      return;
     }
-    if(req.body.package){
+    
+    if (req.body.package) {
       const packageName = req.body.package;
-      const {passengers, taxi} = await Package.findOne({title: packageName})
+      const { passengers, taxi } = await Package.findOne({
+        title: packageName,
+      });
       if (passengers) {
         Booking.passengers = passengers;
       }
@@ -53,11 +57,12 @@ const confirmBooking = async (req, res) => {
         Booking.taxi = taxi;
       }
     }
-
+    
     Booking.email = email;
     bookingReq(email);
-
+    
     const response = await Booking.save();
+    
     if (response) {
       res
         .status(200)
@@ -77,7 +82,7 @@ const updateBooking = async (req, res) => {
     const bookingid = req.body.bookingid;
     const userid = req.user.userID;
 
-    const user = await User.findById(userid)
+    const user = await User.findById(userid);
     const role = user.role;
 
     const status = req.body.status;
@@ -99,19 +104,16 @@ const updateBooking = async (req, res) => {
       return;
     }
 
-    res
-      .status(401)
-      .json({
-        status: "Unsuccessful",
-        message: "Not Authorized to Confirm Booking.",
-      });
+    res.status(401).json({
+      status: "Unsuccessful",
+      message: "Not Authorized to Confirm Booking.",
+    });
   } catch (error) {
     res.status(404).json({ status: "Unsuccessful", message: error });
   }
-
 };
 
-const deleteBooking = async (req, res) =>{
+const deleteBooking = async (req, res) => {
   try {
     const id = req.params.id;
     const response = await Bookings.findByIdAndDelete(id);
@@ -119,18 +121,22 @@ const deleteBooking = async (req, res) =>{
     if (response) {
       res
         .status(200)
-        .json({ status: "Successful", message: "Booking Deleted Successfully." });
+        .json({
+          status: "Successful",
+          message: "Booking Deleted Successfully.",
+        });
       return;
     }
     res
       .status(400)
       .json({ status: "Unsuccesful", message: "Booking not Deleted." });
     return;
-
   } catch (error) {
     console.log(error);
-    res.status(500).json({ status: "Unsuccessful", message: "Internal Server Error" })
+    res
+      .status(500)
+      .json({ status: "Unsuccessful", message: "Internal Server Error" });
   }
-}
+};
 
 module.exports = { getBookings, confirmBooking, updateBooking, deleteBooking };

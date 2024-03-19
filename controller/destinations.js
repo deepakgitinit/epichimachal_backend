@@ -6,7 +6,7 @@ const getAllDestinations = async (req, res) => {
     const { limit } = req.query;
 
     if (limit) {
-      const allDestinations = await Destination.find({}).limit(limit);
+      const allDestinations = await Destination.find({}).sort({_id: -1}).limit(limit);
       res.status(200).json({ allDestinations });
       return
     }

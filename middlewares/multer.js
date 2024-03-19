@@ -4,7 +4,7 @@ const fs = require("fs");
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     try {
-      let folderName = req.body.title || req.user.userID;
+      let folderName = req.body.title || req.body.name || req.user.userID;
       folderName = folderName.split(" ").join("-");
       const uploadDirectory = `public/data/uploads/${folderName}`;
 
@@ -30,6 +30,9 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 1000000 }
+});
 
 module.exports = upload;

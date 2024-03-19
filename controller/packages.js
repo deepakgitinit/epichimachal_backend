@@ -6,7 +6,7 @@ const getPackages = async (req, res) => {
   const {limit} = req.query;
 
   if (limit) {
-    const allPackages = await Package.find({}).limit(limit);
+    const allPackages = await Package.find({}).sort({_id: -1}).limit(limit);
     res.status(200).json({ allPackages });
     return
   }
@@ -78,15 +78,22 @@ const postPackage = async (req, res) => {
 const updatePackage = async (req, res) => {
   const userid = req.user.userID;
   const user = await User.findById(userid);
-
+  
   if (user.role == "ADMIN") {
     try {
       const { id: packageID } = req.params;
       if (!packageID) {
-        res.status(404).json({ msg: "Package ID not found." });
+        res.status(404).json({ statu: "Unsuccessful", message: "Package not updated." });
       }
-      const result = await Package.findByIdAndUpdate(packageID, req.body);
-      res.status(200).json({ result });
+      const result = await Package.findByIdAndUpdate(packageID, req.body, {new: true});
+
+      if(result){
+        res.status(200).json({ status: "Successful", message: "Package Updated Successfully." });
+      }else{
+        res.status(200).json({ status: "Unsuccessful", message: "Package not updated." });
+
+      }
+
     } catch (error) {
       res.status(500).json({ status: "Unsuccessful", message: error });
     }

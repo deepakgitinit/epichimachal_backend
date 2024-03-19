@@ -6,6 +6,8 @@ const bookings = new mongoose.Schema({
         required: [true, "User ID is required."]
     },
     email: String,
+    name: String,
+    phone: String,
     pickup: String,
     destination: String,
     passengers: String,
