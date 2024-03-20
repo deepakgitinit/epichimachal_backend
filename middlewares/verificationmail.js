@@ -9,7 +9,7 @@ const verificationMail = async (id, email) =>{
     if(token){
         try {
             await sendingMail({
-                from: "no-reply@epichimachal.com",
+                from: "contact@epichimachal.com",
                 to: `${email}`,
                 subject: "Account Verification Link",
                 html: `<!DOCTYPE html>

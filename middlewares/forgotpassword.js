@@ -8,7 +8,7 @@ const forgotpassword = async (id, email) => {
 
   try {
     await sendingMail({
-      from: "no-reply@travelmorehimachal.com",
+      from: "contact@epichimachal.com",
       to: email,
       subject: "Forgot Password Link",
       html: `

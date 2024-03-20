@@ -3,7 +3,7 @@ const sendingMail = require("./nodemailer");
 const bookingReq = async (email) => {
   try {
     await sendingMail({
-      from: "no-reply@epichimachal.com",
+      from: "contact@epichimachal.com",
       to: `${email}`,
       subject: "Your Booking is Pendiing.",
       html: `

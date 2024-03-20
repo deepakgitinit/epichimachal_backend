@@ -4,7 +4,7 @@ const contact = async (name, email, message) => {
   try {
     await sendingMail({
       from: `${email}`,
-      to: `deepakhomemail@gmail.com`,
+      to: `contact@epichimachal.com`,
       subject: "Contact form message.",
       html: `
       <p>Hello, Contact form recieved from ${name?name:"user"}.</p>
