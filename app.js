@@ -21,7 +21,7 @@ const port = process.env.APP_PORT;
 
 //Middlewares
 var corsOptions = {
-    origin: 'http://epichimachal.com',
+    origin: ['http://epichimachal.com', "http://localhost:5173"],
     optionsSuccessStatus: 200 // For legacy browser support
 }
 
