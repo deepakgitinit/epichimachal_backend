@@ -3,6 +3,32 @@ const User = require("../models/users");
 const Package = require("../models/packages");
 const bookingReq = require("../middlewares/bookingreq");
 
+const getAllBookings = async (req, res) =>{
+  try {
+    const userID = req.user.userID;
+    const user = await User.findById(userID);
+    
+    if(user.role != "ADMIN") {
+      res.status(401).json({status: "Unsuccessful", message: "You are not authorized"});
+      return;
+    }
+    
+    const bookings = await Bookings.find({});
+
+    if (bookings) {
+      res.status(200).json({ status: "Successful", message: bookings });
+      return;
+    }
+    res
+      .status(406)
+      .json({ status: "Unsuccesful", message: "There is an error occured." });
+
+  } catch (error) {
+    res.status(404).json({ status: "Unsuccessful", message: error });
+  }
+}
+
+
 const getBookings = async (req, res) => {
   try {
     const userID = req.user.userID;
@@ -139,4 +165,4 @@ const deleteBooking = async (req, res) => {
   }
 };
 
-module.exports = { getBookings, confirmBooking, updateBooking, deleteBooking };
+module.exports = { getAllBookings, getBookings, confirmBooking, updateBooking, deleteBooking };

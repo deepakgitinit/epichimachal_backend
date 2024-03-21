@@ -45,10 +45,10 @@ const forgotpassword = async (id, email) => {
         </head>
         <body>
             <div class="container">
-                <img src="https://img.freepik.com/free-vector/bird-colorful-logo-gradient-vector_343694-1365.jpg?size=338&ext=jpg&ga=GA1.1.735520172.1710633600&semt=sph" />
+                <img src="https://www.epichimachal.com/Logo-black.png" />
                 <h2>Password Reset Link</h2>
                 <p>Click the button to reset your Password:</p>
-                <a href="http://localhost:5173/resetpassword/${token}" target="_blank" class="button">Reset Password</a>
+                <a href="https://www.epichimachal.com/resetpassword/${token}" target="_blank" class="button">Reset Password</a>
                 <p>Valid for 10 minutes only.</p>
             </div>
         </body>

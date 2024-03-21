@@ -28,7 +28,7 @@ const createUser = async (req, res) => {
         const createdUser = await User.save();
         const id = createdUser._id.toString();
         const email = createdUser.email;
-        const result = verificationMail(id, email);
+        const result = await verificationMail(id, email);
 
         if(result){
             res.status(201).json({status: "Successful", message: "User successfully created. Check for verification mail"});
@@ -178,7 +178,7 @@ const resendVerification = async (req, res) =>{
             return;
         }
         const result = await verificationMail(user.id, user.email);
-    
+        
         if(result){
             res.status(200).json({status: "Successful", message: "Check for verification mail"});
         }else{

@@ -45,9 +45,10 @@ const verificationMail = async (id, email) =>{
                 </head>
                 <body>
                     <div class="container">
+                        <img src="https://www.epichimachal.com/Logo-black.png" />
                         <h2>Email Verification</h2>
                         <p>Click the button below to verify your email address:</p>
-                        <a href="http://localhost:5173/verification/${token}" target="_blank" class="button">Verify Email</a>
+                        <a href="https://www.epichimachal.com/verification/${token}" target="_blank" class="button">Verify Email</a>
                         <p>Valid for 10 minutes only.</p>
                     </div>
                 </body>
