@@ -2,6 +2,7 @@ const Bookings = require("../models/bookings");
 const User = require("../models/users");
 const Package = require("../models/packages");
 const bookingReq = require("../middlewares/bookingreq");
+const anonumusbooking = require("../middlewares/anonymusbooking");
 
 const getAllBookings = async (req, res) =>{
   try {
@@ -46,7 +47,7 @@ const getBookings = async (req, res) => {
   }
 };
 
-const confirmBooking = async (req, res) => {
+const reqBooking = async (req, res) => {
   try {
     const Booking = new Bookings(req.body);
     const userID = req.user.userID;
@@ -54,54 +55,72 @@ const confirmBooking = async (req, res) => {
 
     const user = await User.findById(userID);
     const email = user.email;
+    const phone = user.phone;
 
     if (user.name!=null) {
       Booking.name = user.name;
     }
     
-    if (user.phone) {
-      Booking.phone = user.phone;
-    } else {
-      res
-      .status(200)
-      .json({
-        status: "Unsuccesful",
-        message: "Phone Number required for Booking.",
-      });
-      return;
-    }
-    
     if (req.body.package) {
-      const packageName = req.body.package;
-      const { passengers, taxi } = await Package.findOne({
-        title: packageName,
-      });
-      if (passengers) {
-        Booking.passengers = passengers;
-      }
-      if (taxi) {
-        Booking.taxi = taxi;
-      }
+      const packageID = req.body.package;
+      const { title, passengers, taxi } = await Package.findById(packageID)
+      Booking.package = title;
+      Booking.passengers = passengers;
+      Booking.taxi = taxi;
     }
     
     Booking.email = email;
-    bookingReq(email);
-    
+    Booking.phone = phone;
+
+    bookingReq(email, phone);
     const response = await Booking.save();
     
     if (response) {
       res
         .status(200)
-        .json({ status: "Successful", message: "Booking request succesful." });
+        .json({ status: "Successful", message: "Booking request successful." });
       return;
     }
     res
       .status(406)
       .json({ status: "Unsuccesful", message: "There is an error occured." });
+
   } catch (error) {
     res.status(404).json({ status: "Unsuccessful", message: error });
   }
 };
+
+const reqAnonymousBooking = async (req, res) =>{
+  try {
+    const Booking = new Bookings(req.body);
+    const name = req.body.name;
+    const phone = req.body.phone;
+    
+    if (req.body.package) {
+      const packageID = req.body.package;
+      const { title, passengers, taxi } = await Package.findById(packageID);
+      Booking.package = title;
+      Booking.passengers = passengers;
+      Booking.taxi = taxi;
+    }
+
+    anonumusbooking(name, phone);
+    const response = await Booking.save();
+    
+    if (response) {
+      res
+        .status(200)
+        .json({ status: "Successful", message: "Booking request successful." });
+      return;
+    }
+    res
+      .status(406)
+      .json({ status: "Unsuccesful", message: "There is an error occured." });
+
+  } catch (error) {
+    res.status(404).json({ status: "Unsuccessful", message: error });
+  }
+}
 
 const updateBooking = async (req, res) => {
   try {
@@ -116,7 +135,14 @@ const updateBooking = async (req, res) => {
     if (role == "ADMIN") {
       const response = await Bookings.findByIdAndUpdate(bookingid, {
         status: status,
-      });
+      }, {new: true});
+
+      const email = response.email;
+      if(email){
+        const pickup = response.pickup;
+        const fromdate = response.fromdate.slice(0, 10);
+        await bookingconfirmation(email, pickup, fromdate);
+      };
 
       if (response) {
         res
@@ -165,4 +191,4 @@ const deleteBooking = async (req, res) => {
   }
 };
 
-module.exports = { getAllBookings, getBookings, confirmBooking, updateBooking, deleteBooking };
+module.exports = { getAllBookings, getBookings, reqBooking, reqAnonymousBooking, updateBooking, deleteBooking };

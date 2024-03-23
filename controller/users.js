@@ -10,9 +10,14 @@ const createUser = async (req, res) => {
             res.status(400).json({status: "Unsuccessful", msg: "Email or Password Cannot be Empty."})
             return;
         }
-        const user = await Users.findOne({email: req.body.email})
-        if(user){
+        const userEmail = await Users.findOne({email: req.body.email})
+        if(userEmail){
             res.status(200).json({status: "Unsuccessful", message: "Email Already Registered."});
+            return;
+        }
+        const userPhone = await Users.findOne({phone: req.body.phone})
+        if (userPhone) {
+            res.status(200).json({status: "Unsuccessful", message: "Phone Already Registered."});
             return;
         }
         
@@ -20,7 +25,9 @@ const createUser = async (req, res) => {
         const encodedPassword = await bcrypt.hash(req.body.password, genSalt);
 
         const User = new Users({
+            name: req.body.name,
             email: req.body.email,
+            phone: req.body.phone,
             password: encodedPassword,
             subscription: req.body.subscription
         })

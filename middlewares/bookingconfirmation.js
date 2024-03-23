@@ -1,18 +1,7 @@
 const sendingMail = require("./nodemailer");
-const Users = require("../models/users")
 
-const bookingReq = async (email, phone) => {
-  const users = await Users.find({role: "ADMIN"});
+const bookingconfirmation = async (email, pickup, fromdate) => {
   try {
-    await sendingMail({
-      from: `contact@epichimachal.com`,
-      to: `${users.map(item=>{return item.email + ","})}`,
-      subject: "Booking request received.",
-      html: `
-      <p>Hello, Booking request recieved from ${email}, phone: ${phone}.</p>
-      `,
-    });
-    
     await sendingMail({
       from: "contact@epichimachal.com",
       to: `${email}`,
@@ -52,9 +41,10 @@ const bookingReq = async (email, phone) => {
         <body>
             <div class="container">
                 <img src="https://www.epichimachal.com/Logo-black.png" />
-                <h2>Booking Request Received</h2>
+                <h2>Booking Request Confirmed.</h2>
                 <p>Hello, ${email}.</p>
-                <p>We have recieved your booking request. We will catch up with you real soon.</p>
+                <p>Your booking request is confirmed. We are waiting to welcome you.</p>
+                <p>Pickup Location: ${pickup} on date ${fromdate}</p>
             </div>
         </body>
         </html>
@@ -68,4 +58,4 @@ const bookingReq = async (email, phone) => {
   }
 };
 
-module.exports = bookingReq;
+module.exports = bookingconfirmation;
