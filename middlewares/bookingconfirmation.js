@@ -1,11 +1,11 @@
 const sendingMail = require("./nodemailer");
 
-const bookingconfirmation = async (email, pickup, fromdate) => {
+const bookingconfirmation = async (email, status) => {
   try {
     await sendingMail({
       from: "contact@epichimachal.com",
       to: `${email}`,
-      subject: "Your booking requrest received.",
+      subject: `Your booking requrest ${status}.`,
       html: `
       <!DOCTYPE html>
         <html lang="en">
@@ -41,10 +41,10 @@ const bookingconfirmation = async (email, pickup, fromdate) => {
         <body>
             <div class="container">
                 <img src="https://www.epichimachal.com/Logo-black.png" />
-                <h2>Booking Request Confirmed.</h2>
+                <h2>Booking Request ${status}.</h2>
                 <p>Hello, ${email}.</p>
-                <p>Your booking request is confirmed. We are waiting to welcome you.</p>
-                <p>Pickup Location: ${pickup} on date ${fromdate}</p>
+                <p>Your booking request is ${status}. </p>
+                <p>Check your account for more details or Contact us.</p>
             </div>
         </body>
         </html>

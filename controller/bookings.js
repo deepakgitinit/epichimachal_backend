@@ -139,9 +139,9 @@ const updateBooking = async (req, res) => {
 
       const email = response.email;
       if(email){
-        const pickup = response.pickup;
-        const fromdate = response.fromdate.slice(0, 10);
-        await bookingconfirmation(email, pickup, fromdate);
+        // const pickup = response.pickup;
+        // const fromdate = response.fromdate.slice(0, 10);
+        await bookingconfirmation(email, status);
       };
 
       if (response) {
