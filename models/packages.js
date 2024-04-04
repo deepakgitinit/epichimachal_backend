@@ -8,7 +8,7 @@ const packages = new mongoose.Schema({
         // maxLength: [50, "Max length is 50 characters"],
     },
     price: {
-        type: Number,
+        type: String,
         required: [true, "Price cannot be empty"]
     },
     category: Array,

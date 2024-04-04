@@ -12,6 +12,7 @@ const bookings = require("./routes/bookings.js");
 const taxi = require("./routes/taxi.js");
 const pickup = require("./routes/pickup.js");
 const contact = require("./routes/contact.js");
+const itinerary = require("./routes/itinerary.js");
 
 //Environment Variables
 const dotenv = require('dotenv');
@@ -38,6 +39,7 @@ app.use("/api/v1/bookings", bookings)
 app.use("/api/v1/taxi", taxi)
 app.use("/api/v1/pickup", pickup)
 app.use("/api/v1/contact", contact)
+app.use("/api/v1/itinerary", itinerary)
 
 const start = async () =>{
     try {
