@@ -28,6 +28,7 @@ const storage = multer.diskStorage({
       console.log(error);
     } 
   },
+  
 });
 
 const upload = multer({ 
