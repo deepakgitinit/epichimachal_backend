@@ -1,3 +1,4 @@
 /node_modules
 .env
 /public/data/uploads/**
+!/public/data/uploads/.gitkeep
